@@ -10,6 +10,7 @@ router.post('/createuser', createUser);
 router.post('/loginuser', loginUser);
 
 router.get('/profile', protect, (req, res)=>{
+    console.log(req)
     res.send(req.user)
 })
 

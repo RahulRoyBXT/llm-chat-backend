@@ -4,7 +4,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const generateToken = require('../utils/generateToken');
+const {generateAccessToken} = require('../utils/generateToken');
+const isAdmin = require('../middleware/adminMiddleware');
 
 const getAllUsers = async (req, res)=> {
 
@@ -16,19 +17,20 @@ const getAllUsers = async (req, res)=> {
     }
 }
 
-const createUser = async (req, res)=> {
-    try{
-        const {name, email, password} = req.body
+const createUser = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
 
-        if(!name || !email || !password){
-            return res.status(400).json({message: "Please provide all fields"})
+        if (!name || !email || !password) {
+            console.log('Missing fields');
+            return res.status(400).json({ message: "Please provide all fields" });
         }
 
         // Check if user already exists
-        const userExists = await User.findOne({email})
+        const userExists = await User.findOne({ email });
 
-        if(userExists){
-            return res.status(400).json({error: "User already exists"})
+        if (userExists) {
+            return res.status(400).json({ error: "User already exists" });
         }
 
         // Hash password
@@ -36,24 +38,25 @@ const createUser = async (req, res)=> {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create user
-        const user = await User.create({name, email, password})
+        const user = await User.create({ name, email, password: hashedPassword });
 
-        if(user){
+        if (user) {
             res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 isAdmin: user.isAdmin,
-                token: generateToken(user._id)
-            })
+                token: generateAccessToken(user)
+            });
         } else {
-           res.status(400).json({message: "Invalid user data"})
+            res.status(400).json({ message: "Invalid user data" });
         }
 
-    } catch(err){
-        res.status(400).json({message: err.message})
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-}
+};
+
 
 
 // Login user
@@ -69,7 +72,8 @@ const loginUser = async (req, res)=>{
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                token: generateToken(user._id)
+                isAdmin: user.role === 'admin',
+                token: generateAccessToken(user)
             })
         } else {        
             res.status(401).json({message: "Invalid email or password"})
