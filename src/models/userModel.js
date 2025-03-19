@@ -15,11 +15,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    userPhoto: {
+      type: Buffer,
+      required: [true, "Profile Photo Is needed"]
+    },
     role:{
       type: String,
       enum: ['user', 'admin'],
       default: 'user'
-    }
+    },
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}] // Friend List
   },
   { timestamps: true }
 );
