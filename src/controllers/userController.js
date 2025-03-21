@@ -25,7 +25,7 @@ const checkAuth = (req, res) => {
     console.log('secret: ', process.env.JWT_SECRET)
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        console.log(decoded.id)
+        console.log(decoded.userPhoto)
         res.json({message: 'Authenticated', user: decoded})
     } catch (error) {
         res.status(403).json({ message: ' Invalid Token'})
@@ -36,8 +36,9 @@ const checkAuth = (req, res) => {
 
 const fetchProfile = (req, res) => {
     if(!req.user) return res.status(401).json({ message: 'User is Not Available'})
-    const {name, email, userPhoto } = req.user
-    res.json({name: name, email: email, photo: userPhoto})
+    const {id, name, email, userPhoto, role, friends } = req.user
+    console.log(userPhoto)
+    res.json({id:id,name: name, email: email, photo: userPhoto, role: role, friends: friends})
 }
 
 // Enable 2FA
@@ -164,20 +165,15 @@ const loginUser = async (req, res)=>{
             httpOnly: process.env.NODE_ENV === "production",
             secure: process.env.NODE_ENV === "production", // Only Secure in Production
             sameSite: process.env.NODE_ENV === "production"? 'Strict': 'Lax',
-            maxAge: 15*60*1000, // 15 minutes
+            maxAge: 60*60*60*1000, // 15 minutes
         })
 
-        // res.cookie('user', 'JohnDoe', {
-        //     maxAge: 3600000,  // 1 hour
-        //     httpOnly: false,  // Accessible by JavaScript
-        //     secure: false,    // For local development (use true in production)
-        //     sameSite: 'Lax'   // Adjust for your use case
-        //   });
         res.json({
-            _id: user._id,
+            id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.role === 'admin',
+            photo: user.userPhoto,
             token,
         })
     } catch (error){

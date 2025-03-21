@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
     },
     userPhoto: {
-      type: Buffer,
+      type: String,
       required: [true, "Profile Photo Is needed"]
     },
     role:{

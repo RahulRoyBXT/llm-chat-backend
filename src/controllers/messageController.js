@@ -1,47 +1,67 @@
 const Message = require('../models/messageModel.js')
 
+
 // Send Message
 exports.sendMessage = async (req, res)=> {
-    
-    try {
-        const { sender, receiver, content } = req.body
-        if(!sender || !receiver || !content) return res.status(401).json({ message: 'Enough data was not provided'})
-        
-        const chatId = [sender, receiver].sort().join('_') // Doing this for consistent chatId 
-        
-        const newMessage = await Message.create({
-            chatId,
-            sender,
-            receiver,
-            content
-        })
-        res.status(201).json(newMessage)
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message})
-    }
+      setTimeout(async ()=> {try {
+      const {uniqueId, senderId, receiverId, content } = req.body
+      if(!uniqueId || !senderId || !receiverId || !content) return res.status(401).json({ message: 'Enough data was not provided'})
+      
+      const chatId = [senderId, receiverId].sort().join('_') // Doing this for consistent chatId 
+      
+      const newMessage = new Message({
+          uniqueId: uniqueId,
+          chatId,
+          sender: senderId,
+          receiver: receiverId,
+          content,
+          status: 'sent'
+      })
+
+      await newMessage.save()
+
+      res.status(201).json({message: 'Message sent successfully', data: newMessage})
+      
+  } catch (error) {
+      console.log(error.message)
+      res.status(500).json({ error: error.message})
+  } },3000)
 }
+
 
 // Get Message (Added Pagination) // I Have to add infinity scroll
 
-exports.getMessage = async (req, res)=> {
-    console.log('worked')
+exports.getMessages = async (req, res) => {
     try {
-        const { chatId } = req.params
-        console.log(chatId)
-        const { lastTimestamp } = req.query  // Added for page
-
-        const query = { chatId }
-        console.log('query:', query)
-        if( lastTimestamp) query.timestamp = { $lt: lastTimestamp} // review 
-
-        const message = await Message.find(query)
-        .sort({ timestamp: -1})
-        .limit(20)
-        // What I am doing here is fetching latest one first
-        // and Load only 20 messages
-        res.status(200).json(message)
+      const { chatId } = req.params;
+      const { lastTimestamp } = req.query; // For pagination
+  
+      // Base query
+      const query = { chatId };
+  
+      // Add pagination filter: Fetch messages older than `lastTimestamp`
+      if (lastTimestamp) {
+        query.sentAt = { $lt: new Date(lastTimestamp) };
+      }
+  
+      const messages = await Message.find(query)
+        .sort({ sentAt: 1 }) // Get newest messages first
+        .limit(40)
+      // Format the response
+      const formattedMessages = messages.map((msg) => ({
+          uniqueId: msg.uniqueId,
+          chatId: msg.chatId,
+          sender: msg.sender,
+          receiver:  msg.receiver,
+          content: msg.content,
+          status: msg.status,
+          timestamp: new Date(msg.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          date: new Date(msg.sentAt).toISOString().split("T")[0], // Fixed: `.split('T')`
+      }));
+  
+      res.status(200).json(formattedMessages);
     } catch (error) {
-        res.status(500).json({ error: error.message || 'Message is not Available'})
+      res.status(500).json({ error: error.message || "Messages are not available" });
     }
-}
+  };
+  
