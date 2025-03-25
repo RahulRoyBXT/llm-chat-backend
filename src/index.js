@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -51,7 +52,7 @@ app.use(cookieParser());
 
 // middleware
 app.use(cors({
-  origin: "http://192.168.179.192:5173",
+  origin: "http://192.168.132.192:5173",
   credentials: true,  // Ensure this is `true`
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
