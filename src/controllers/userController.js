@@ -38,7 +38,6 @@ const checkAuth = (req, res) => {
 const fetchProfile = (req, res) => {
     if(!req.user) return res.status(401).json({ message: 'User is Not Available'})
     const {id, name, email, userPhoto, role, friends } = req.user
-    console.log(userPhoto)
     res.json({id:id,name: name, email: email, photo: userPhoto, role: role, friends: friends})
 }
 
