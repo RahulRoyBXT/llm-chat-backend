@@ -39,6 +39,7 @@ const messageSchema = new mongoose.Schema({
     {timestamps: true}
 )
 
+
 // Index for fast search & retrievals
 // messageSchema.index({ chatId:1, timestamp: -1 })
 
