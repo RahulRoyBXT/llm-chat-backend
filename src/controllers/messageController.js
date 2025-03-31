@@ -50,7 +50,6 @@ exports.getMessages = async (req, res) => {
     let cachedMessage = await redisClient.lRange(messageKey, 0, -1);
 
     if (cachedMessage.length > 0) {
-      console.log('this is cased message: ',cachedMessage)
       cachedMessage = cachedMessage.map((msg) => JSON.parse(msg));
     }
 

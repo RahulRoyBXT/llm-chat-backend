@@ -17,7 +17,6 @@ const isAdmin = require('../middleware/adminMiddleware');
 // Verifying if teh user is Logged in
 
 const checkAuth = (req, res) => {
-    console.log('Cookie: ',req.cookies)
     const token = req.cookies?.token || null;
 
     if(!token){
@@ -92,12 +91,9 @@ const getAllUsers = async (req, res)=> {
 // Create User
 
 const createUser = async (req, res) => {
-    console.log('hello')
     try {
         const { userName: name, email, password } = req.body;
-        console.log(name, email, password)
         const userPhoto = req.file? req.file.buffer.toString("base64"): null;
-        // console.log(name, email, password, userPhoto)
         if (!name || !email || !password || !userPhoto) {
             console.log('Missing fields');
             return res.status(400).json({ message: "Please provide all fields" });
@@ -184,7 +180,6 @@ const loginUser = async (req, res)=>{
 // Logout User
 
 const logoutUser = (req, res) => {
-    console.log(req.cookies)
         if (!req.cookies?.token) {
             return res.status(401).json({ message: 'You are Not logged in!' });
         }
@@ -194,6 +189,17 @@ const logoutUser = (req, res) => {
     res.json({ message: 'Logged out successfully' });
 };
 
+// Dangerous Controller - Do not use it
+exports.deleteUserAccount = async (req, res )=> {
+    try{
+        const userId = req.user._id.toString()
+        await User.findByIdAndDelete(userId)
+
+        return res.status(200).json({ message: 'User Deleted Successful'})
+    }catch(error){
+        return res.status(500).json({ error: error.message})
+    }   
+}
 
 
 module.exports = {getAllUsers, createUser, loginUser, logoutUser,checkAuth,fetchProfile, verify2FA, enable2FA};

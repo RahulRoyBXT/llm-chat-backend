@@ -31,7 +31,7 @@ subClient.connect().catch(console.error);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://192.168.132.192:5173",
+    origin: "process.env.FRONTEND_ORIGIN_URL",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -53,7 +53,7 @@ app.use("/api", allUserRoutes);
 // Socket.io Setup
 const io = new Server(server, {
   cors: {
-    origin: "http://192.168.132.192:5173",
+    origin: "process.env.FRONTEND_ORIGIN_URL",
     credentials: true,
   },
 });
@@ -65,12 +65,12 @@ redisClient.connect().catch(console.error);
 
 // Socket.io Logic
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  // console.log("User connected:", socket.id);
 
   // Store User Connection in Redis
   socket.on("user_connected", async (userId) => {
     await redisClient.set(`user:${userId}`, socket.id);
-    console.log(`User ${userId} is online`);
+    // console.log(`User ${userId} is online`);
   });
 
   // Handle User Disconnection
@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
         const userId = key.split(":")[1];
         await redisClient.set(`lastSeen:${userId}`, new Date().toISOString()); // Update lastSeen
         await redisClient.del(key); // Removed User Session
-        console.log(`User ${key.split(":")[1]} disconnected`);
+        // console.log(`User ${key.split(":")[1]} disconnected`);
       }
     }
   });
