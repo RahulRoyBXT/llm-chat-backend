@@ -127,6 +127,110 @@ exports.getFriendList = async (req, res) => {
   }
 };
 
+// Pending request
+exports.getPendingRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false,
+        message: "User ID is required", 
+        error: "MISSING_USER_ID" 
+      });
+    }
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid user ID format", 
+        error: "INVALID_USER_ID_FORMAT" 
+      });
+    }
+
+    // Check if user exists
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found", 
+        error: "USER_NOT_FOUND" 
+      });
+    }
+
+    // Find all requests where the user is the sender and status is pending
+    const pendingRequests = await FriendRequest.find({
+      sender: userId,
+      status: 'pending'
+    }).populate('receiver', 'name email userPhoto');
+
+    return res.status(200).json({
+      success: true,
+      count: pendingRequests.length,
+      data: pendingRequests
+    });
+  } catch (error) {
+    console.error("Error fetching pending requests:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch pending friend requests",
+      error: error?.message || "Internal server error"
+    });
+  }
+};
+
+// Received Request
+exports.getReceivedRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false,
+        message: "User ID is required", 
+        error: "MISSING_USER_ID" 
+      });
+    }
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid user ID format", 
+        error: "INVALID_USER_ID_FORMAT" 
+      });
+    }
+    
+    // Check if user exists
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found", 
+        error: "USER_NOT_FOUND" 
+      });
+    }
+
+    // Find all requests where the user is the receiver and status is pending
+    const receivedRequests = await FriendRequest.find({
+      receiver: userId,
+      status: 'pending'
+    }).populate('sender', 'name email userPhoto');
+
+    return res.status(200).json({
+      success: true,
+      count: receivedRequests.length,
+      data: receivedRequests
+    });
+  } catch (error) {
+    console.error("Error fetching received requests:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch received friend requests",
+      error: error?.message || "Internal server error"
+    });
+  }
+};
+
 // Delete Friends
 exports.removeFriends = async (req, res) => {
   try {
@@ -149,6 +253,65 @@ exports.removeFriends = async (req, res) => {
     return res.status(200).json({ message: "Friend removed" });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+};
+
+// Cancel Friend Request
+exports.cancelFriendRequest = async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    
+    if (!requestId) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Request ID is required", 
+        error: "MISSING_REQUEST_ID" 
+      });
+    }
+    
+    if (!mongoose.Types.ObjectId.isValid(requestId)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid request ID format", 
+        error: "INVALID_REQUEST_ID_FORMAT" 
+      });
+    }
+
+    // Find the request
+    const request = await FriendRequest.findById(requestId);
+    
+    // Check if the request exists
+    if (!request) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Friend request not found", 
+        error: "REQUEST_NOT_FOUND" 
+      });
+    }
+    
+    // Only pending requests can be canceled
+    if (request.status !== "pending") {
+      return res.status(400).json({ 
+        success: false,
+        message: "Only pending friend requests can be canceled", 
+        error: "INVALID_REQUEST_STATUS" 
+      });
+    }
+    
+    // Delete the friend request
+    await FriendRequest.findByIdAndDelete(requestId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend request canceled successfully"
+    });
+  } catch (error) {
+    console.error("Error canceling friend request:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Failed to cancel friend request",
+      error: error?.message || "Internal server error"
+    });
   }
 };
 

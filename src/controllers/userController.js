@@ -94,6 +94,7 @@ const createUser = async (req, res) => {
     try {
         const { userName: name, email, password } = req.body;
         const userPhoto = req.file? req.file.buffer.toString("base64"): null;
+        
         if (!name || !email || !password || !userPhoto) {
             console.log('Missing fields');
             return res.status(400).json({ message: "Please provide all fields" });

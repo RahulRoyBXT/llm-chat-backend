@@ -3,10 +3,11 @@ const redisClient = createClient();
 redisClient.connect().catch(console.error);
 
 const Message = require("../models/messageModel.js");
+const { generateNewMessage } = require("../utils/generateNewMessages.js");
+const { generateRoomId } = require("../utils/generateRoomId.js");
 
 // Send Message
 exports.sendMessage = async (req, res) => {
-  setTimeout(async () => {
     try {
       const { uniqueId, senderId, receiverId, content } = req.body;
       if (!uniqueId || !senderId || !receiverId || !content)
@@ -14,16 +15,9 @@ exports.sendMessage = async (req, res) => {
           .status(401)
           .json({ message: "Enough data was not provided" });
 
-      const chatId = [senderId, receiverId].sort().join("_"); // Doing this for consistent chatId
+      const chatId = generateRoomId(senderId, receiverId) // Doing this for consistent chatId
 
-      const newMessage = new Message({
-        uniqueId: uniqueId,
-        chatId,
-        sender: senderId,
-        receiver: receiverId,
-        content,
-        status: "sent",
-      });
+      const newMessage = generateNewMessage({uniqueId, senderId, receiverId, content, chatId})
 
       await newMessage.save();
 
@@ -34,7 +28,6 @@ exports.sendMessage = async (req, res) => {
       console.log(error.message);
       res.status(500).json({ error: error.message });
     }
-  }, 3000);
 };
 
 // Get Message (With Redis Cache & Pagination) // I Have to add infinity scroll
