@@ -1,6 +1,6 @@
 # 🦙 Llama Chat - Enterprise-Grade Real-Time Messaging Platform
 
-![GitHub](https://img.shields.io/github/license/rahulroy-io/llama-chat-app)
+![GitHub](https://img.shields.io/github/license/RahulRoyBXT/llm-chat-Client)
 ![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)
 ![Express](https://img.shields.io/badge/express-4.21.2-blue)
 ![Socket.IO](https://img.shields.io/badge/socket.io-4.8.1-brightgreen)
@@ -17,7 +17,7 @@ A production-ready, scalable real-time messaging platform built with cutting-edg
 
 Developed as an ambitious project to apply my academic knowledge to real-world challenges, this application highlights my ability to implement Socket.IO, Redis, Express, and MongoDB in a cohesive, maintainable codebase.
 
-![Llama Chat Platform](https://via.placeholder.com/800x400?text=Llama+Chat+Enterprise+Platform)
+![Llama Chat Platform]()
 
 ## ✨ Key Features
 
@@ -507,10 +507,10 @@ I'm a motivated software engineer and recent computer science graduate with a st
 - Incorporated advanced features like PDF processing and semantic search capabilities
 
 ### Connect With Me
-- [LinkedIn](https://linkedin.com/in/rahulroy) - Professional profile and networking
-- [GitHub](https://github.com/rahulroy-io) - Code projects and contributions
-- [Portfolio](https://rahulroy.dev) - Project showcases and technical writing
-- [Email](mailto:hello@rahulroy.dev) - Direct contact for opportunities
+- [LinkedIn](https://www.linkedin.com/in/rahul-roy-bak/) - Professional profile and networking
+- [GitHub](https://github.com/RahulRoyBXT) - Code projects and contributions
+- [Portfolio](https://rahulroydev.netlify.app/) - Project showcases and technical writing
+- [Email](mailto:rahul.roybak@gmail.com) - Direct contact for opportunities
 
 ---
 
